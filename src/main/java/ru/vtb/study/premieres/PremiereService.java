@@ -86,4 +86,16 @@ public class PremiereService {
         }
         return ticket;
     }
+
+    public void changePremiereAgeCategory(String premiereName, int newAgeCategory) {
+        Premiere premiere = getPremiereByName(premiereName);
+        if (premiere == null) {
+            printNoSuchPremiereInList(premiereName);
+        } else if (newAgeCategory < 0) {
+            log.error("Illegal age! {}", newAgeCategory);
+        } else {
+            premiere.setAgeCategory(newAgeCategory);
+            log.info("New age category {}+ for premiere {} has been set!", newAgeCategory, premiereName);
+        }
+    }
 }
