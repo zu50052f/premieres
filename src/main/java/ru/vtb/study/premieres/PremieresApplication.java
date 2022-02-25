@@ -1,10 +1,12 @@
 package ru.vtb.study.premieres;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
-
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import ru.vtb.study.premieres.interfaces.IPremiere;
+import ru.vtb.study.premieres.interfaces.IPremiereService;
 import ru.vtb.study.premieres.model.Ticket;
 
 @SpringBootApplication(scanBasePackages = {"ru.vtb.study.premieres"})
@@ -12,14 +14,14 @@ import ru.vtb.study.premieres.model.Ticket;
 public class PremieresApplication {
 
     public static void main(String[] args) {
-        final ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(PremieresApplication.class, args);
-        PremiereService premiereService = configurableApplicationContext.getBean(PremiereService.class);
-        
+        final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(PremieresConfig.class);
+        IPremiereService premiereService = applicationContext.getBean(IPremiereService.class);
+
         final String JB007 = "JB007";
         final String Matrix = "Matrix";
 
-        premiereService.addPremiere(JB007, "He is arriving again to save the Queen", 10, 100);
-        premiereService.addPremiere(Matrix, "Neo has come back", 15, 50);
+        premiereService.addPremiere((IPremiere) applicationContext.getBean("premiere", JB007, "He is arriving again to save the Queen", 10, 100));
+        premiereService.addPremiere((IPremiere) applicationContext.getBean("premiere", Matrix, "Neo has come back", 15, 50));
         premiereService.printPremieres();
         premiereService.printPremiereInfo(Matrix);
 

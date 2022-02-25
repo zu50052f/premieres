@@ -1,6 +1,8 @@
 package ru.vtb.study.premieres.model;
 
-public class Premiere {
+import ru.vtb.study.premieres.interfaces.IPremiere;
+
+public class Premiere implements ru.vtb.study.premieres.interfaces.IPremiere {
     private String name;
     private String description;
     private int ageCategory;
@@ -17,7 +19,8 @@ public class Premiere {
         this.name = name;
     }
 
-    @Override
+    public Premiere() {}
+
     public String toString() {
         return "Premiere{" +
                 "name='" + name + '\'' +

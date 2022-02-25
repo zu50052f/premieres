@@ -1,21 +1,19 @@
-package ru.vtb.study.premieres;
+package ru.vtb.study.premieres.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.vtb.study.premieres.model.Premiere;
+import ru.vtb.study.premieres.interfaces.IPremiere;
+import ru.vtb.study.premieres.interfaces.IPremiereService;
 import ru.vtb.study.premieres.model.Ticket;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
-public class PremiereService {
-    private final Map<String, Premiere> premiereList = new HashMap<>();
+public class PremiereService implements IPremiereService {
+    private final Map<String, IPremiere> premiereList = new HashMap<>();
 
-    public void addPremiere(String name, String description, int ageCategory, int availableSeats) {
-        Premiere premiere = new Premiere(name, description, ageCategory, availableSeats);
-        premiereList.put(name, premiere);
+    public void addPremiere(IPremiere premiere) {
+        premiereList.put(premiere.getName(), premiere);
     }
 
     public void printNoSuchPremiereInList(String premiereName) {
@@ -23,7 +21,7 @@ public class PremiereService {
     }
 
     public void removePremiereByName(String premiereName) {
-        Premiere premiere = getPremiereByName(premiereName);
+        IPremiere premiere = getPremiereByName(premiereName);
         if (premiere != null) {
             premiereList.remove(premiereName);
             log.info("Premiere {} has been removed from list", premiereName);
@@ -33,7 +31,7 @@ public class PremiereService {
     }
 
     public void printPremiereInfo(String premiereName) {
-        Premiere premiere = getPremiereByName(premiereName);
+        IPremiere premiere = getPremiereByName(premiereName);
         if (premiere == null) {
             printNoSuchPremiereInList(premiereName);
         } else {
@@ -45,12 +43,12 @@ public class PremiereService {
         log.info(premiereList.values().toString());
     }
 
-    public Premiere getPremiereByName(String name) {
+    public IPremiere getPremiereByName(String name) {
         return premiereList.get(name);
     }
 
     public Ticket bookSomeSeats(String premiereName, int requiredSeats) {
-        Premiere premiere = getPremiereByName(premiereName);
+        IPremiere premiere = getPremiereByName(premiereName);
         Ticket ticket = null;
         if (premiere == null) {
             printNoSuchPremiereInList(premiereName);
@@ -74,7 +72,7 @@ public class PremiereService {
         } else if (ticket.getBookedSeats() <= 0) {
             log.error("Your ticket has no booked seats!");
         } else {
-            Premiere premiere = getPremiereByName(ticket.getPremiereName());
+            IPremiere premiere = getPremiereByName(ticket.getPremiereName());
             if (premiere == null) {
                 log.error("Oops! You can't return ticket on removed premiere \"{}\"", ticket.getPremiereName());
             } else {
@@ -88,7 +86,7 @@ public class PremiereService {
     }
 
     public void changePremiereAgeCategory(String premiereName, int newAgeCategory) {
-        Premiere premiere = getPremiereByName(premiereName);
+        IPremiere premiere = getPremiereByName(premiereName);
         if (premiere == null) {
             printNoSuchPremiereInList(premiereName);
         } else if (newAgeCategory < 0) {
