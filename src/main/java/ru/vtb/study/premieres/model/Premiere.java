@@ -2,7 +2,7 @@ package ru.vtb.study.premieres.model;
 
 import ru.vtb.study.premieres.interfaces.IPremiere;
 
-public class Premiere implements ru.vtb.study.premieres.interfaces.IPremiere {
+public class Premiere implements IPremiere {
     private String name;
     private String description;
     private int ageCategory;

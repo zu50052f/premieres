@@ -1,6 +1,6 @@
 package ru.vtb.study.premieres.interfaces;
 
-import ru.vtb.study.premieres.interfaces.IPremiere;
+import ru.vtb.study.premieres.exceptions.OnReturnNoTicketException;
 import ru.vtb.study.premieres.model.Ticket;
 
 public interface IPremiereService {

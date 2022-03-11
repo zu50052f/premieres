@@ -1,6 +1,7 @@
 package ru.vtb.study.premieres.service;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.vtb.study.premieres.exceptions.*;
 import ru.vtb.study.premieres.interfaces.IPremiere;
 import ru.vtb.study.premieres.interfaces.IPremiereService;
 import ru.vtb.study.premieres.model.Ticket;
@@ -10,10 +11,10 @@ import java.util.Map;
 
 @Slf4j
 public class PremiereService implements IPremiereService {
-    private final Map<String, IPremiere> premiereList = new HashMap<>();
+    private final Map<String, IPremiere> premiereMap = new HashMap<>();
 
     public void addPremiere(IPremiere premiere) {
-        premiereList.put(premiere.getName(), premiere);
+        premiereMap.put(premiere.getName(), premiere);
     }
 
     public void printNoSuchPremiereInList(String premiereName) {
@@ -23,7 +24,7 @@ public class PremiereService implements IPremiereService {
     public void removePremiereByName(String premiereName) {
         IPremiere premiere = getPremiereByName(premiereName);
         if (premiere != null) {
-            premiereList.remove(premiereName);
+            premiereMap.remove(premiereName);
             log.info("Premiere {} has been removed from list", premiereName);
         } else {
             printNoSuchPremiereInList(premiereName);
@@ -40,27 +41,26 @@ public class PremiereService implements IPremiereService {
     }
 
     public void printPremieres() {
-        log.info(premiereList.values().toString());
+        log.info(premiereMap.values().toString());
     }
 
     public IPremiere getPremiereByName(String name) {
-        return premiereList.get(name);
+        return premiereMap.get(name);
     }
 
     public Ticket bookSomeSeats(String premiereName, int requiredSeats) {
         IPremiere premiere = getPremiereByName(premiereName);
         Ticket ticket = null;
         if (premiere == null) {
-            printNoSuchPremiereInList(premiereName);
+            throw new PremiereDoesNotExistException(premiereName);
         } else {
             int availableSeats = premiere.getAvailableSeats();
 
             if (availableSeats >= requiredSeats) {
                 premiere.setAvailableSeats(availableSeats - requiredSeats);
-                log.info("Successful book of {} seats on premiere {}", requiredSeats, premiereName);
                 ticket = new Ticket(premiereName, requiredSeats);
             } else {
-                log.error("Sorry, there is just {} seats left", availableSeats);
+                throw new OnBookNotEnoughSeatsException(String.format("Sorry, there is just %d seats left", availableSeats));
             }
         }
         return ticket;
@@ -68,18 +68,17 @@ public class PremiereService implements IPremiereService {
 
     public Ticket returnTicket(Ticket ticket) {
         if (ticket == null) {
-            log.error("You have no ticket!");
+            throw new OnReturnNoTicketException("You don't have the ticket to return!");
         } else if (ticket.getBookedSeats() <= 0) {
-            log.error("Your ticket has no booked seats!");
+            throw new OnReturnNoBookedSeatsException("Your ticket has no booked seats!");
         } else {
             IPremiere premiere = getPremiereByName(ticket.getPremiereName());
             if (premiere == null) {
-                log.error("Oops! You can't return ticket on removed premiere \"{}\"", ticket.getPremiereName());
+                throw new OnReturnNoSuchPremiereException(String.format("Oops! You can't return ticket on removed premiere \"%s\"", ticket.getPremiereName()));
             } else {
                 int bookedSeats = ticket.getBookedSeats();
                 premiere.setAvailableSeats(premiere.getAvailableSeats() + bookedSeats);
                 ticket.setBookedSeats(0);
-                log.info("Successfull return of tiket on premier {} with {} booked seats.", ticket.getPremiereName(), bookedSeats);
             }
         }
         return ticket;
@@ -93,7 +92,6 @@ public class PremiereService implements IPremiereService {
             log.error("Illegal age! {}", newAgeCategory);
         } else {
             premiere.setAgeCategory(newAgeCategory);
-            log.info("New age category {}+ for premiere {} has been set!", newAgeCategory, premiereName);
         }
     }
 }
